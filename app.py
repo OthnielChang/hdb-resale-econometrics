@@ -13,8 +13,6 @@ st.caption("Predict resale price from flat attributes using XGBoost")
 model = joblib.load("hdb_xgb_pipeline.pkl")
 feature_cols = joblib.load("feature_cols.pkl")
 
-df = pd.read_csv("resale_data.csv")
-
 def lease_to_years(s):
     if pd.isna(s):
         return np.nan
@@ -29,8 +27,14 @@ def lease_to_years(s):
     
     return y + m/12
 
-df["remaining_lease_years"] = df["remaining_lease"].apply(lease_to_years)
-df["month"] = pd.to_datetime(df["month"], format="%Y-%m", errors="coerce")
+@st.cache_data
+def load_data():
+    df = pd.read_csv("resale_data.csv")
+    df["month"] = pd.to_datetime(df["month"], format="%Y-%m", errors="coerce")
+    df["remaining_lease_years"] = df["remaining_lease"].apply(lease_to_years)
+    return df
+
+df = load_data()
 
 towns = sorted(df["town"].dropna().unique().tolist())
 flat_types = sorted(df["flat_type"].dropna().unique().tolist())
