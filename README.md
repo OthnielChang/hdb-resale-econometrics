@@ -96,6 +96,16 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+---
+
+## 🌐 Access the App (Live Demo)
+
+You can try the deployed Streamlit app here:
+
+🔗 https://hdb-resale-econometrics-othniel.streamlit.app/
+
+---
+
 ## 📁 Project Structure
 ```bash
 .
