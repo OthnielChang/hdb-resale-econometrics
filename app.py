@@ -49,7 +49,7 @@ remaining_lease_years = st.number_input("Remaining Lease (years)", min_value=0.0
 st.subheader("Comparable Flats Settings")
 area_tol = st.slider("Comparable area tolerance (± sqm)", 5, 30, 10)
 lease_tol = st.slider("Comparable lease tolerance (± years)", 1, 20, 5)
-months_back = st.slider("Lookback period (months)", 3, 36, 12)
+months_back = st.slider("Lookback period (months)", 3, 60, 12)
 
 # Prediction
 if st.button("Predict Price"):
@@ -74,23 +74,27 @@ if st.button("Predict Price"):
 
     st.metric("Predicted Resale Price", f"${pred_price:,.0f}")
     st.write(f"**90% Prediction Interval:** ${lower_price:,.0f} – ${upper_price:,.0f}")
-    st.caption("Interval is estimated empirically from test-set residuals.")
+    st.caption("Based on our test-set errors, about 90% of future resale prices are expected to fall within this range around the model’s prediction.")
 
     X_input["pred_price"] = pred_price
 
     cutoff = df["month"].max() - pd.DateOffset(months=months_back)
 
+    # decided not to include flat model & storey range
     comps = df[
         (df["month"] >= cutoff) &
         (df["town"] == town) &
         (df["flat_type"] == flat_type) &
-        (df["flat_model"] == flat_model) &
-        (df["storey_range"] == storey_range) &
+        # (df["flat_model"] == flat_model) &
+        # (df["storey_range"] == storey_range) &
         (df["floor_area_sqm"].between(floor_area_sqm - area_tol, floor_area_sqm + area_tol)) &
         (df["remaining_lease_years"].between(remaining_lease_years - lease_tol, remaining_lease_years + lease_tol))
     ].copy()
 
+    comps_display = comps.copy()
+    comps_display["month"] = comps_display["month"].dt.strftime("%Y-%m")
+
     st.subheader("Comparable Flats (Actual Transactions)")
-    st.dataframe(comps[["month","town","flat_type","flat_model","storey_range","floor_area_sqm","remaining_lease_years","resale_price"]].head(20))
+    st.dataframe(comps_display[["month","town","flat_type","flat_model","storey_range","floor_area_sqm","remaining_lease_years","resale_price"]].head(30))
 
 
